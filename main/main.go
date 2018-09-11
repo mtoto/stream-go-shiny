@@ -25,7 +25,7 @@ func main() {
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
 		//fmt.Printf(string(msg))
-		natsClient.Publish("tweets1", []byte(tweet.Text))
+		natsClient.Publish("tweets", []byte(tweet.Text))
 	}
 
 	// FILTER
