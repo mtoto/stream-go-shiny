@@ -17,24 +17,27 @@ func main() {
 	httpClient := config.Client(oauth1.NoContext, token)
 
 	// Twitter client
-	client := twitter.NewClient(httpClient)
+	twitterClient := twitter.NewClient(httpClient)
 	// Nats client
-	natsClient, _ := stan.Connect("test-cluster", "test", stan.NatsURL(nats.DefaultURL))
+	natsClient, err := stan.Connect("test-cluster", "test", stan.NatsURL(nats.DefaultURL))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Convenience Demux demultiplexed stream messages
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
-		//fmt.Printf(string(msg))
-		natsClient.Publish("tweets", []byte(tweet.Text))
+		natsClient.Publish("cats", []byte(tweet.Text))
 	}
 
-	// FILTER
+	// Filter parameters for Twitter stream
 	filterParams := &twitter.StreamFilterParams{
-		Track:         []string{"#USOpen"},
+		Track:         []string{"cat"},
 		StallWarnings: twitter.Bool(true),
+		Language:      []string{"en"},
 	}
 
-	stream, err := client.Streams.Filter(filterParams)
+	stream, err := twitterClient.Streams.Filter(filterParams)
 	if err != nil {
 		log.Fatal(err)
 	}
