@@ -20,7 +20,9 @@ pool <- dbPool(
 ui <- fluidPage(
 
        # actionButton("button", "STOP!"),
-        plotlyOutput("popPlot")
+        #plotlyOutput("popPlot"),
+        plotlyOutput("sentPlot")
+        
 )
 
 server <- function(input, output, session) {
@@ -35,10 +37,30 @@ server <- function(input, output, session) {
                         orientation = 'h')
         })
         
+        output$sentPlot <- renderPlotly({
+                
+                data() %>% head(10000) %>%
+                        inner_join(get_sentiments("bing")) %>%
+                        count(index = as.POSIXct(round(timestamp, "mins")), sentiment) %>%
+                        spread(sentiment, n, fill = 0) %>%
+                        mutate(sentiment = positive - negative) %>%
+                        plot_ly(x = .$index, 
+                                y = .$sentiment, 
+                                type = 'scatter',
+                                mode = 'lines') %>%
+                        layout(
+                                yaxis = list(range = c(-20,20))
+                        )
+                
+        })
+        
         observe({
                 
                 plotlyProxy("popPlot", session) %>%
                         plotlyProxyInvoke("update")
+                plotlyProxy("sentPlot", session) %>%
+                        plotlyProxyInvoke("extendTraces",
+                                          list(y=list(list(data()$sentiment))), list(0))
                 
         })
         
@@ -59,7 +81,8 @@ server <- function(input, output, session) {
                                              mutate(data = gsub('.*cats"','', data)) %>% 
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
-                                             anti_join(stop_words)
+                                             anti_join(stop_words) %>% 
+                                             mutate(timestamp = anytime(timestamp/1e+9))
                                              
                              }
         )
