@@ -1,8 +1,12 @@
+library(anytime)
 library(shiny)
 library(DBI)
 library(pool)
 library(dplyr)
+library(tidyr)
 library(plotly)
+library(tidytext)
+
 data("stop_words")
 stop_words <- rbind(stop_words,
       data.frame(word = c("cat","cats"),
@@ -11,10 +15,10 @@ stop_words <- rbind(stop_words,
 pool <- dbPool(
         drv = RMySQL::MySQL(),
         dbname = "nss_db",
-        host = "localhost",
+        host = "db",
         port = 3306,
-        username = "tamas",
-        password = "kabbe"
+        username = "root",
+        password = "pwd"
 )
 
 ui <- fluidPage(
@@ -58,6 +62,7 @@ server <- function(input, output, session) {
                 
                 plotlyProxy("popPlot", session) %>%
                         plotlyProxyInvoke("update")
+
                 plotlyProxy("sentPlot", session) %>%
                         plotlyProxyInvoke("extendTraces",
                                           list(y=list(list(data()$sentiment))), list(0))
