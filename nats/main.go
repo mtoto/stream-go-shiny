@@ -6,11 +6,11 @@ import (
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
-	nats "github.com/nats-io/go-nats"
 	stan "github.com/nats-io/go-nats-streaming"
 )
 
 func main() {
+	var err error
 
 	config := oauth1.NewConfig(keys.Key, keys.Secret)
 	token := oauth1.NewToken(keys.Token, keys.TokenSecret)
@@ -19,7 +19,8 @@ func main() {
 	// Twitter client
 	twitterClient := twitter.NewClient(httpClient)
 	// Nats client
-	natsClient, err := stan.Connect("test-cluster", "test", stan.NatsURL(nats.DefaultURL))
+	natsClient, err := stan.Connect("test-cluster", "test",
+		stan.NatsURL("nats://nats:4222"))
 	if err != nil {
 		log.Fatal(err)
 	}
