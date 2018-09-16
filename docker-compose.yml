@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  db:
+    build:
+      context: "./db"
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+  nats:
+    image: nats-streaming:latest
+    restart: always
+    depends_on:
+      - db
+    command: -m 8222 --store SQL --sql_driver mysql --sql_source "nss:password@tcp(db:3306)/nss_db"
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+  nats-worker:
+    build:
+      context: "./nats"
+    restart: always
+    entrypoint: /go/main
+    depends_on:
+      - nats
+  shiny:
+    build:
+      context: "./shiny"
+    ports:
+      - "80:3838"
+    depends_on:
+      - db
