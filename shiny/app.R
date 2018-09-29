@@ -8,7 +8,6 @@ library(tidyr)
 library(tidytext)
 library(ggplot2)
 
-
 data("stop_words")
 stop_words <- rbind(stop_words,
       data.frame(word = Sys.getenv("TWITTER"),
@@ -30,12 +29,15 @@ ui <- dashboardPage(
         tags$style(type="text/css", ".recalculating {opacity: 1.0;}"), # https://github.com/rstudio/shiny/issues/1591
         
         fluidRow(
-                box(plotOutput("topPos"), width = 6),
-                box(plotOutput("topNeg"), width = 6)),
-                
+                box(plotOutput("timePlot"), width = 12)),
+        
         fluidRow(
-                 box(plotOutput("sentPlot"), width = 12))
-                 )
+                box(plotOutput("sentPlot"), width = 12)), 
+        
+        fluidRow(
+                box(plotOutput("topPos"), width = 6),
+                box(plotOutput("topNeg"), width = 6))
+                )
 )
 
 server <- function(input, output, session) {
@@ -55,7 +57,6 @@ server <- function(input, output, session) {
                         labs(x = NULL, y = NULL) +
                         ggtitle("Top Positive words")
                 
-                
         })
         
         output$topNeg <- renderPlot({
@@ -72,7 +73,6 @@ server <- function(input, output, session) {
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
                         ggtitle("Top Negative words")
-                
                 
         })
         
@@ -91,6 +91,22 @@ server <- function(input, output, session) {
                 
         })
         
+        output$timePlot <- renderPlot({
+                
+                data() %>% head(10000) %>%
+                        group_by(index = as.POSIXct(round(timestamp, "mins"))) %>%
+                        summarise(tally = n_distinct(seq)) %>%
+                        ggplot(aes(x = index, y = tally)) +
+                        geom_bar(stat = "identity") +
+                        geom_line() +
+                        geom_point() +
+                        theme_classic() +
+                        scale_fill_manual(values="#999999") +
+                        labs(x = "time") +
+                        ggtitle("Tweets per minute") 
+                
+                
+        })
         
         data <- reactivePoll(100, session,
                              # This function returns the latest timestamp from the DB
@@ -111,7 +127,7 @@ server <- function(input, output, session) {
                                              anti_join(stop_words) %>% 
                                              mutate(timestamp = anytime(timestamp/1e+9)) %>%
                                              inner_join(get_sentiments("bing"))
-                                             
+                                   
                              }
         )
 }
