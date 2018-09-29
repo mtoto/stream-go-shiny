@@ -1,73 +1,96 @@
 library(anytime)
 library(shiny)
+library(shinydashboard)
 library(DBI)
 library(pool)
 library(dplyr)
 library(tidyr)
-library(plotly)
 library(tidytext)
+library(ggplot2)
+
 
 data("stop_words")
 stop_words <- rbind(stop_words,
-      data.frame(word = c("cat","cats"),
+      data.frame(word = Sys.getenv("TWITTER"),
                  lexicon = "custom"))
 
 pool <- dbPool(
         drv = RMySQL::MySQL(),
         dbname = "nss_db",
-        host = "db",
+        host = "db", 
         port = 3306,
-        username = "root",
-        password = "pwd"
+        username = "nss",
+        password = "password" 
 )
 
-ui <- fluidPage(
-
-       # actionButton("button", "STOP!"),
-        #plotlyOutput("popPlot"),
-        plotlyOutput("sentPlot")
+ui <- dashboardPage(
+        dashboardHeader(title = "Twitter Sentiment Dashboard"),
+        dashboardSidebar(disable = TRUE),
+        dashboardBody(
+        tags$style(type="text/css", ".recalculating {opacity: 1.0;}"), # https://github.com/rstudio/shiny/issues/1591
         
+        fluidRow(
+                box(plotOutput("topPos"), width = 6),
+                box(plotOutput("topNeg"), width = 6)),
+                
+        fluidRow(
+                 box(plotOutput("sentPlot"), width = 12))
+                 )
 )
 
 server <- function(input, output, session) {
         
-        output$popPlot <- renderPlotly({
-
-                data() %>% count(word, sort = TRUE) %>%
-                        top_n(10) %>%
-                plot_ly(y = .$word, 
-                        x = .$n, 
-                        type = 'bar', 
-                        orientation = 'h')
-        })
-        
-        output$sentPlot <- renderPlotly({
+        output$topPos <- renderPlot({
                 
                 data() %>% head(10000) %>%
-                        inner_join(get_sentiments("bing")) %>%
-                        count(index = as.POSIXct(round(timestamp, "mins")), sentiment) %>%
-                        spread(sentiment, n, fill = 0) %>%
-                        mutate(sentiment = positive - negative) %>%
-                        plot_ly(x = .$index, 
-                                y = .$sentiment, 
-                                type = 'scatter',
-                                mode = 'lines') %>%
-                        layout(
-                                yaxis = list(range = c(-20,20))
-                        )
+                        filter(sentiment == "positive") %>%
+                        count(index = word, sentiment) %>% 
+                        top_n(5) %>%
+                        arrange(-n) %>%
+                        ggplot(aes(x = reorder(index, n), y = n)) +
+                        geom_bar(stat = "identity", fill = "#56B4E9")  +
+                        coord_flip() +
+                        theme_classic() +
+                        theme(legend.position="bottom") +
+                        labs(x = NULL, y = NULL) +
+                        ggtitle("Top Positive words")
+                
                 
         })
         
-        observe({
+        output$topNeg <- renderPlot({
                 
-                plotlyProxy("popPlot", session) %>%
-                        plotlyProxyInvoke("update")
-
-                plotlyProxy("sentPlot", session) %>%
-                        plotlyProxyInvoke("extendTraces",
-                                          list(y=list(list(data()$sentiment))), list(0))
+                data() %>% head(10000) %>%
+                        filter(sentiment == "negative") %>%
+                        count(index = word, sentiment) %>% 
+                        top_n(5) %>%
+                        arrange(-n) %>%
+                        ggplot(aes(x = reorder(index, n), y = n)) +
+                        geom_bar(stat = "identity", fill = "#E69F00")  +
+                        coord_flip() +
+                        theme_classic() +
+                        theme(legend.position="bottom") +
+                        labs(x = NULL, y = NULL) +
+                        ggtitle("Top Negative words")
+                
                 
         })
+        
+        output$sentPlot <- renderPlot({
+                
+                data() %>% head(10000) %>%
+                        count(index = as.POSIXct(round(timestamp, "mins")), sentiment) %>%
+                        ggplot(aes(x = index, y = n, fill = sentiment)) +
+                        geom_bar(position = "fill", stat = "identity") +
+                        scale_y_continuous(labels = scales::percent) +
+                        theme_classic() +
+                        theme(legend.position="bottom") +
+                        labs(x = NULL, y = NULL) +
+                        scale_fill_manual(values=c("#E69F00", "#56B4E9"))
+                
+                
+        })
+        
         
         data <- reactivePoll(100, session,
                              # This function returns the latest timestamp from the DB
@@ -81,13 +104,13 @@ server <- function(input, output, session) {
                              # This function returns a data.frame ready for text mining
                              valueFunc = function() {
                                      pool %>% tbl("Messages") %>%
-                                             filter(!data %like% "%RT%") %>%
+                                             filter(!data %like% "%http%") %>%
                                              collect() %>%
-                                             mutate(data = gsub('.*cats"','', data)) %>% 
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
                                              anti_join(stop_words) %>% 
-                                             mutate(timestamp = anytime(timestamp/1e+9))
+                                             mutate(timestamp = anytime(timestamp/1e+9)) %>%
+                                             inner_join(get_sentiments("bing"))
                                              
                              }
         )
