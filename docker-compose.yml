@@ -13,13 +13,15 @@ services:
     restart: always
     depends_on:
       - db
-    command: -m 8222 --store SQL --sql_driver mysql --sql_source "nss:password@tcp(db:3306)/nss_db"
+    command: -m 8222 --store SQL --sql_driver mysql --sql_source "root:pwd@tcp(db:3306)/nss_db"
     ports:
       - "4222:4222"
       - "8222:8222"
   nats-worker:
     build:
       context: "./nats"
+    environment:
+    - TWITTER=${TWITTER}
     restart: always
     entrypoint: /go/main
     depends_on:
@@ -27,6 +29,8 @@ services:
   shiny:
     build:
       context: "./shiny"
+    environment:
+    - TWITTER=${TWITTER}
     ports:
       - "80:3838"
     depends_on:
