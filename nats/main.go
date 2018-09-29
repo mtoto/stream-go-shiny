@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"stream/keys"
 
 	"github.com/dghubble/go-twitter/twitter"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	var err error
+	word := os.Getenv("TWITTER")
 
 	config := oauth1.NewConfig(keys.Key, keys.Secret)
 	token := oauth1.NewToken(keys.Token, keys.TokenSecret)
@@ -28,12 +30,12 @@ func main() {
 	// Convenience Demux demultiplexed stream messages
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
-		natsClient.Publish("cats", []byte(tweet.Text))
+		natsClient.Publish(word, []byte(tweet.Text))
 	}
 
 	// Filter parameters for Twitter stream
 	filterParams := &twitter.StreamFilterParams{
-		Track:         []string{"cat"},
+		Track:         []string{word},
 		StallWarnings: twitter.Bool(true),
 		Language:      []string{"en"},
 	}
