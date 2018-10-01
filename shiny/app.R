@@ -119,7 +119,7 @@ server <- function(input, output, session) {
                                      pool %>% tbl("Messages") %>%
                                              filter(!data %like% "%http%") %>% 
                                              arrange(-timestamp) %>%
-                                             mutate(n=n()) %>% 
+                                             mutate(n=rank()) %>% 
                                              filter(n < n_limit) %>% 
                                              collect() %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
