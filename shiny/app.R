@@ -116,9 +116,9 @@ server <- function(input, output, session) {
                              # This function returns a data.frame ready for text mining
                              valueFunc = function() {
                                      pool %>% tbl("Messages") %>%
-                                             filter(!data %like% "%http%" & 
-                                                    timestamp > as.numeric(Sys.time())*1e9-3.6e+12) %>% # last hour
+                                             filter(!data %like% "%http%") %>% # last hour
                                              collect() %>%
+                                             head(500) %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
                                              anti_join(stop_words) %>% 
