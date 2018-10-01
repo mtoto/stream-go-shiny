@@ -104,7 +104,7 @@ server <- function(input, output, session) {
                 
         })
         
-        data <- reactivePoll(500, session,
+        data <- reactivePoll(1000, session,
                              # This function returns the latest timestamp from the DB
                              checkFunc = function() {
                                      pool %>% tbl("Messages") %>%
@@ -117,7 +117,7 @@ server <- function(input, output, session) {
                              valueFunc = function() {
                                      pool %>% tbl("Messages") %>%
                                              filter(!data %like% "%http%" & 
-                                                    timestamp > timestamp-7.2e+12) %>%
+                                                    timestamp > timestamp-3.6e+12) %>% # last hour
                                              collect() %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%

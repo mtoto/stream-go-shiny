@@ -48,5 +48,4 @@ func main() {
 	for message := range stream.Messages {
 		demux.Handle(message)
 	}
-
 }
