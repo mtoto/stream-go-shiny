@@ -116,13 +116,14 @@ server <- function(input, output, session) {
                              # This function returns a data.frame ready for text mining
                              valueFunc = function() {
                                      pool %>% tbl("Messages") %>%
-                                             filter(!data %like% "%http%") %>%
+                                             filter(!data %like% "%http%" & 
+                                                    timestamp > timestamp-7.2e+12) %>%
                                              collect() %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
                                              anti_join(stop_words) %>% 
                                              mutate(timestamp = anytime(timestamp/1e+9)) %>%
-                                             inner_join(get_sentiments("bing")) %>% head(10000)
+                                             inner_join(get_sentiments("bing")) 
                                    
                              }
         )
