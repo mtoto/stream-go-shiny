@@ -115,12 +115,10 @@ server <- function(input, output, session) {
                              },
                              # This function returns a data.frame ready for text mining
                              valueFunc = function() {
-                                     n_limit <- 10000
                                      pool %>% tbl("Messages") %>%
                                              filter(!data %like% "%http%") %>% 
                                              arrange(-timestamp) %>%
-                                             mutate(n=rank()) %>% 
-                                             filter(n < n_limit) %>% 
+                                             head(1000) %>%
                                              collect() %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
