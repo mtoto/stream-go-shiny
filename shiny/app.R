@@ -115,10 +115,13 @@ server <- function(input, output, session) {
                              },
                              # This function returns a data.frame ready for text mining
                              valueFunc = function() {
+                                     n_limit <- 10000
                                      pool %>% tbl("Messages") %>%
-                                             filter(!data %like% "%http%") %>% # last hour
+                                             filter(!data %like% "%http%") %>% 
+                                             arrange(-timestamp) %>%
+                                             mutate(n=n()) %>% 
+                                             filter(n < n_limit) %>% 
                                              collect() %>%
-                                             head(500) %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
                                              anti_join(stop_words) %>% 
@@ -130,6 +133,5 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
-
 
 
