@@ -117,7 +117,7 @@ server <- function(input, output, session) {
                              valueFunc = function() {
                                      pool %>% tbl("Messages") %>%
                                              filter(!data %like% "%http%" & 
-                                                    timestamp > timestamp-3.6e+12) %>% # last hour
+                                                    timestamp > as.numeric(Sys.time())*1e9-3.6e+12) %>% # last hour
                                              collect() %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
