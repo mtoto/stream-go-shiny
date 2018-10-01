@@ -118,7 +118,7 @@ server <- function(input, output, session) {
                                      pool %>% tbl("Messages") %>%
                                              filter(!data %like% "%http%") %>% 
                                              arrange(-timestamp) %>%
-                                             head(1000) %>%
+                                             head(100000) %>%
                                              collect() %>%
                                              mutate(data = gsub("[^[:alnum:][:space:]]","",data)) %>%
                                              unnest_tokens(word, data) %>%
