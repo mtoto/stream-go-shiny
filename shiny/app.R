@@ -44,8 +44,7 @@ server <- function(input, output, session) {
         
         output$topPos <- renderPlot({
                 
-                data() %>% head(10000) %>%
-                        filter(sentiment == "positive") %>%
+                data() %>% filter(sentiment == "positive") %>%
                         count(index = word, sentiment) %>% 
                         top_n(5) %>%
                         arrange(-n) %>%
@@ -55,14 +54,13 @@ server <- function(input, output, session) {
                         theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
-                        ggtitle("Top Positive words")
+                        ggtitle("TOP POSITIVE WORDS")
                 
         })
         
         output$topNeg <- renderPlot({
                 
-                data() %>% head(10000) %>%
-                        filter(sentiment == "negative") %>%
+                data() %>% filter(sentiment == "negative") %>%
                         count(index = word, sentiment) %>% 
                         top_n(5) %>%
                         arrange(-n) %>%
@@ -72,14 +70,13 @@ server <- function(input, output, session) {
                         theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
-                        ggtitle("Top Negative words")
+                        ggtitle("TOP NEGATIVE WORDS")
                 
         })
         
         output$sentPlot <- renderPlot({
                 
-                data() %>% head(10000) %>%
-                        count(index = as.POSIXct(round(timestamp, "mins")), sentiment) %>%
+                data() %>% count(index = as.POSIXct(round(timestamp, "mins")), sentiment) %>%
                         ggplot(aes(x = index, y = n, fill = sentiment)) +
                         geom_bar(position = "fill", stat = "identity") +
                         scale_y_continuous(labels = scales::percent) +
@@ -93,8 +90,7 @@ server <- function(input, output, session) {
                 
         output$timePlot <- renderPlot({
                 
-                data() %>% head(10000) %>%
-                        group_by(index = as.POSIXct(round(timestamp, "mins"))) %>%
+                data() %>% group_by(index = as.POSIXct(round(timestamp, "mins"))) %>%
                         summarise(tally = n_distinct(seq)) %>%
                         ggplot(aes(x = index, y = tally)) +
                         geom_bar(stat = "identity") +
@@ -103,7 +99,7 @@ server <- function(input, output, session) {
                         theme_classic(base_size = 22) +
                         scale_fill_manual(values="#999999") +
                         labs(x = "time") +
-                        ggtitle("Tweets per minute") 
+                        ggtitle("TWEETS PER MINUTE") 
                 
                 
         })
@@ -126,7 +122,7 @@ server <- function(input, output, session) {
                                              unnest_tokens(word, data) %>%
                                              anti_join(stop_words) %>% 
                                              mutate(timestamp = anytime(timestamp/1e+9)) %>%
-                                             inner_join(get_sentiments("bing"))
+                                             inner_join(get_sentiments("bing")) %>% head(10000)
                                    
                              }
         )
