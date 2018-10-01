@@ -52,7 +52,7 @@ server <- function(input, output, session) {
                         ggplot(aes(x = reorder(index, n), y = n)) +
                         geom_bar(stat = "identity", fill = "#56B4E9")  +
                         coord_flip() +
-                        theme_classic() +
+                        theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
                         ggtitle("Top Positive words")
@@ -69,7 +69,7 @@ server <- function(input, output, session) {
                         ggplot(aes(x = reorder(index, n), y = n)) +
                         geom_bar(stat = "identity", fill = "#E69F00")  +
                         coord_flip() +
-                        theme_classic() +
+                        theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
                         ggtitle("Top Negative words")
@@ -83,14 +83,14 @@ server <- function(input, output, session) {
                         ggplot(aes(x = index, y = n, fill = sentiment)) +
                         geom_bar(position = "fill", stat = "identity") +
                         scale_y_continuous(labels = scales::percent) +
-                        theme_classic() +
+                        theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
                         scale_fill_manual(values=c("#E69F00", "#56B4E9"))
                 
                 
         })
-        
+                
         output$timePlot <- renderPlot({
                 
                 data() %>% head(10000) %>%
@@ -100,7 +100,7 @@ server <- function(input, output, session) {
                         geom_bar(stat = "identity") +
                         geom_line() +
                         geom_point() +
-                        theme_classic() +
+                        theme_classic(base_size = 22) +
                         scale_fill_manual(values="#999999") +
                         labs(x = "time") +
                         ggtitle("Tweets per minute") 
@@ -108,7 +108,7 @@ server <- function(input, output, session) {
                 
         })
         
-        data <- reactivePoll(100, session,
+        data <- reactivePoll(500, session,
                              # This function returns the latest timestamp from the DB
                              checkFunc = function() {
                                      pool %>% tbl("Messages") %>%
