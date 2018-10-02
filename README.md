@@ -19,7 +19,7 @@ To start the service, run:
 docker-compose -f docker-compose.yml up
 ```
 
-It might take a couple of minutes for all the containers to be stand up. You can check `http://localhost/twitter` for the dashboard, it should look something like this:
+It might take a couple of minutes for all the containers to stand up. You can check `http://localhost/twitter` for the dashboard, it should look something like this:
 
 ![](https://media.giphy.com/media/7ELgP0jqdokVZXEpAf/giphy.gif)
 
