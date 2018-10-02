@@ -1,7 +1,7 @@
 # Streaming Analytics Demo with NATS
 
 This repo contains the assets to create a real-time Shiny app that visualizes tweets based on a certain keyword. Under the hood, we use 
-the [Twitter Streaming API](https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data.html) to access the tweets and [NATS Streaming](https://github.com/nats-io/go-nats-streaming) to process and write them to a MySQL database. The Shiny app queries this database continously to update the data in the dashboard. All the components are containerized can be deployed using Docker Compose. For more detail, see [my blogpost on this project](http://tamaszilagyi.com/blog/lightweight-streaming-analytics-with-nats/). The dashboard is currently live on http://stream.tamaszilagyi.com/.
+the [Twitter Streaming API](https://developer.twitter.com/en/docs/tutorials/consuming-streaming-data.html) to access the tweets and [NATS Streaming](https://github.com/nats-io/go-nats-streaming) to process and write them to a MySQL database. The Shiny app queries this database continously to update the data in the dashboard. All the components are containerized and can be deployed using Docker Compose. For more detail, see [my blogpost on this project](http://tamaszilagyi.com/blog/lightweight-streaming-analytics-with-nats/). The dashboard is currently live on http://stream.tamaszilagyi.com/.
 
 ## Getting started
 
