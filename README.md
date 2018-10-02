@@ -13,7 +13,7 @@ cd stream-go-shiny
 docker-compose build
 ```
 
-To start the service we run:
+To start the service, run:
 
 ```
 docker-compose -f docker-compose.yml up
