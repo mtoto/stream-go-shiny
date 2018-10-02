@@ -98,7 +98,7 @@ server <- function(input, output, session) {
                         theme_classic(base_size = 22) +
                         scale_fill_manual(values="#999999") +
                         labs(x = "time") +
-                        ggtitle("TWEETS PER MINUTE") 
+                        ggtitle("Tweets per minute") 
                 
                 
         })
