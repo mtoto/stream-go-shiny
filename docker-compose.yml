@@ -7,7 +7,7 @@ services:
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     ports:
-      - "3306:3306"
+      - "3306"
   nats:
     image: nats-streaming:latest
     restart: always
@@ -15,7 +15,7 @@ services:
       - db
     command: -m 8222 --store SQL --sql_driver mysql --sql_source "root:pwd@tcp(db:3306)/nss_db"
     ports:
-      - "4222:4222"
+      - "4222"
       - "8222:8222"
   nats-worker:
     build:
