@@ -54,7 +54,7 @@ server <- function(input, output, session) {
                         theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
-                        ggtitle("TOP POSITIVE WORDS")
+                        ggtitle("Top Positive Words")
                 
         })
         
@@ -70,7 +70,7 @@ server <- function(input, output, session) {
                         theme_classic(base_size = 22) +
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
-                        ggtitle("TOP NEGATIVE WORDS")
+                        ggtitle("Top Negative Words")
                 
         })
         
@@ -84,7 +84,6 @@ server <- function(input, output, session) {
                         theme(legend.position="bottom") +
                         labs(x = NULL, y = NULL) +
                         scale_fill_manual(values=c("#E69F00", "#56B4E9"))
-                
                 
         })
                 
